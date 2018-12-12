@@ -112,6 +112,10 @@ class EVIFile():
         "Return the numpy arrage of the raw data"
         return self.data
 
+    def get_header(self):
+        "Return the header dictionary"
+        return self.headers
+
     def shape(self):
         "Show the dimension of the image"
         print("(H, W, frames) = ", [self.height, self.width, self.nImages])
