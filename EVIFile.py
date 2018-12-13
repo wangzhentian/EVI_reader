@@ -82,7 +82,7 @@ class EVIFile():
         if "Number_of_board_rows" in self.headers:
             self.numberOfRows = int(self.headers["Number_of_board_rows"])
 
-        self.data = np.zeros((self.width, self.height, self.nImages),dtype=np.uint16)
+        self.data = np.zeros((self.height, self.width, self.nImages),dtype=np.uint16)
 
         fp.seek(0) # go back to the begining of the file
         fp.read(self.sequenceHeaderBytes-self.frameHeaderBytes) #skip file header
@@ -92,7 +92,7 @@ class EVIFile():
                 tmp = np.fromfile(fp,dtype=np.uint32,count=self.width*self.height).astype(np.uint16)
             else:
                 tmp = np.fromfile(fp,dtype=np.uint16,count=self.width*self.height)
-            self.data[:,:,i] = np.reshape(tmp, (self.width, self.height))
+            self.data[:,:,i] = np.reshape(tmp, (self.height, self.width))
         fp.close()
 
 
@@ -105,7 +105,7 @@ class EVIFile():
         "Show the EVI image"
         for i in range(0, self.nImages):
             plt.figure(i)
-            plt.imshow(self.data[:,:,i].T, cmap='gray')
+            plt.imshow(self.data[:,:,i], cmap='gray')
             plt.show(block=True)
 
     def get_data(self):
@@ -141,12 +141,12 @@ if __name__ == '__main__':
     #fEVI.show()
     data = fEVI.get_data()
     plt.figure()
-    plt.imshow(data[:,:,1].T,cmap='gray') # show the first frame
+    plt.imshow(data[:,:,1],cmap='gray') # show the first frame
     plt.show(block=True)
 
     # approach 3
-    data, headers = EVIread(filename)
-    plt.figure()
-    plt.imshow(data[:,:,1].T,cmap='gray') # show the first frame
-    plt.show(block=True)
+    # data, headers = EVIread(filename)
+    # plt.figure()
+    # plt.imshow(data[:,:,1],cmap='gray') # show the first frame
+    # plt.show(block=True)
     

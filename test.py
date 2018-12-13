@@ -6,6 +6,6 @@ fEVI = EVI.EVIFile(filename)
 #fEVI.read(filename)
 fEVI.shape()
 #fEVI.print_header()
-#fEVI.show()
+fEVI.show()
 
 data, headers = EVIread(filename)
