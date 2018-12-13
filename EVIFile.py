@@ -123,66 +123,27 @@ class EVIFile():
 
 
 def EVIread(filename):
-        headers = {} # Dictionary for EVI headers
-        data = [] # Image data
-        try:
-            fp = open(filename, encoding='latin-1')
-        except:
-            print("File cannot be found or opened.")
-            return
-        
-        for i in range(0, 76): # 76 lines of file header
-            line = fp.readline()
-            name, var = line.partition(" ")[::2]
-            headers[name.strip()] = var
+    "Utility function to read the EVI data and header directly"
+    evi = EVIFile(filename)
+    return evi.get_data(), evi.get_header()
 
-        image_type   = headers["Image_Type"]
-        is32bit = (image_type == "Single") or (image_type == "32-bit Real")
-        width   = int(headers["Width"])
-        height  = int(headers["Height"])
-        nImages = int(headers["Scan_Frame_Count"]) # what is difference from Nr_of_images?
-        frameHeaderBytes = int(headers["Gap_between_iamges_in_bytes"])
-        intelByteOrder = headers["Endianness"] == "Little-endian byte order"
-        TC = int(headers["HV_TC"])
-        sequenceHeaderBytes = int(headers["Offset_To_First_Image"])
-        tds = headers["Tds"].lower() == "true"
-        if "Tds_Truncate_to_015" in headers:
-            tdsTruncate = headers["Tds_Truncate_to_015"].lower() == "true"
-        else:
-            TE = headers["Energy_type"].lower() == "TOTAL_ENERGY" 
-            if TE:
-                tdsTruncate = headers["Tds_Truncate_to_015_TE"].lower() == "true"
-            else:
-                tdsTruncate = headers["Tds_Truncate_to_015_HE"].lower() == "true"
-        if "Number_of_boards" in headers:
-            numberOfBoards = int(headers["Number_of_boards"])
-        if "Number_of_board_rows" in headers:
-            numberOfRows = int(headers["Number_of_board_rows"])
-
-        data = np.zeros((width, height, nImages),dtype=np.uint16)
-
-        fp.seek(0) # go back to the begining of the file
-        fp.read(sequenceHeaderBytes-frameHeaderBytes) #skip file header
-        for i in range(0, nImages):
-            fp.read(frameHeaderBytes) # skip frame header, can be multiple frames
-            if is32bit:
-                tmp = np.fromfile(fp,dtype=np.uint32,count=width*height).astype(np.uint16)
-            else:
-                tmp = np.fromfile(fp,dtype=np.uint16,count=width*height)
-            data[:,:,i] = np.reshape(tmp, (width, height))
-        fp.close()    
-        return data, headers
 
 if __name__ == '__main__':
     filename = '/Users/wangzhentian/Desktop/test1_TE.EVI'
     # approach 1
     # fEVI = EVIFile()
     # fEVI.read(filename)
+
     # approach 2
     fEVI = EVIFile(filename)
     fEVI.print_header()
     fEVI.shape()
     #fEVI.show()
+    data = fEVI.get_data()
+    plt.figure()
+    plt.imshow(data[:,:,1].T,cmap='gray') # show the first frame
+    plt.show(block=True)
+
     # approach 3
     data, headers = EVIread(filename)
     plt.figure()
